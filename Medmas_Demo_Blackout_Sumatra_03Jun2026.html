@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=390, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pantauan Media Massa: Demo Blackout Sumatra — 03 Juni 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 12px; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; color: #1e293b; max-width: 100vw; overflow-x: hidden; }
+    /* ===== Compact mobile overrides ===== */
+    header { padding-top: 14px !important; padding-bottom: 14px !important; padding-left: 12px !important; padding-right: 12px !important; }
+    header h1 { font-size: 1.35rem !important; margin-bottom: 4px !important; }
+    main { padding: 8px 8px 14px !important; }
+    main > section { margin-bottom: 11px !important; }
+    main .p-6 { padding: 11px !important; }
+    main .p-5 { padding: 11px !important; }
+    main .p-4 { padding: 10px !important; }
+    main .p-3 { padding: 8px !important; }
+    main .gap-6 { gap: 10px !important; }
+    main .gap-4 { gap: 9px !important; }
+    main .gap-3 { gap: 8px !important; }
+    main .mb-6 { margin-bottom: 10px !important; }
+    main .mb-5 { margin-bottom: 9px !important; }
+    main .mb-4 { margin-bottom: 8px !important; }
+    main .pt-9 { padding-top: 26px !important; }
+    main .pt-10 { padding-top: 28px !important; }
+    .ico { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; flex-shrink: 0; }
+    .pln-blue { color: #0055A4; }
+    .chart-container { width: 100%; }
+    /* KPI cards */
+    .kpi-card { transition: none; }
+    /* Quotes */
+    .quote-card { position: relative; }
+    .quote-card::before { content: '"'; position: absolute; top: 8px; left: 12px; font-size: 40px; line-height: 1; color: #0055A4; opacity: 0.15; font-family: Georgia, serif; }
+    /* Timeline */
+    .timeline-item { position: relative; padding-left: 24px; }
+    .timeline-item::before { content: ''; position: absolute; left: 6px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: #0055A4; box-shadow: 0 0 0 3px rgba(0,85,164,0.12); }
+    /* Risk badges */
+    .risk-very-high { background: #fecaca; color: #7f1d1d; font-weight: 700; }
+    .risk-high { background: #fee2e2; color: #991b1b; }
+    .risk-medium { background: #fef3c7; color: #92400e; }
+    .risk-low { background: #dcfce7; color: #15803d; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 0.68rem; font-weight: 600; }
+    /* Tables */
+    table.data-table { font-size: 0.72rem; }
+    table.data-table th { background: #f1f5f9; font-weight: 600; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.04em; color:#475569; text-align:left; }
+    table.data-table td, table.data-table th { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+    /* Scrollable table wrapper */
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    /* Recommendation cards */
+    .recommendation-card { border-left: 4px solid #0055A4; }
+    .recommendation-card:nth-child(2) { border-left-color: #00A651; }
+    .recommendation-card:nth-child(3) { border-left-color: #F26522; }
+    .recommendation-card:nth-child(4) { border-left-color: #0055A4; }
+    .recommendation-card:nth-child(5) { border-left-color: #00A651; }
+    .recommendation-card:nth-child(6) { border-left-color: #F26522; }
+    /* Escalation ladder */
+    .ladder-rung { position: relative; border-radius: 10px; padding: 12px 14px; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+    .ladder-rung .num { width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0; }
+    .ladder-connector { width:2px; background: #cbd5e1; margin-left: 30px; height: 10px; }
+    .actor-node { }
+    .scenario-card { border-top: 4px solid #94a3b8; }
+    @media print { * { display: none; } }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="bg-gradient-to-r from-slate-900 via-[#0055A4] to-slate-900 text-white py-6 px-4">
+  <div class="mx-auto">
+    <div class="flex items-center gap-3 mb-4 flex-wrap">
+      <span class="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs font-medium tracking-wide uppercase">Media Monitoring Report</span>
+      <span class="bg-orange-500/90 px-3 py-1 rounded-full text-xs font-medium tracking-wide uppercase">Tren Eskalatif</span>
+      <span class="bg-white/10 px-3 py-1 rounded-full text-xs font-medium tracking-wide uppercase">Cut-off 21.00 WIB</span>
+    </div>
+    <h1 class="text-2xl font-bold mb-2 leading-tight">Pantauan Media Massa: Demo Blackout Sumatra</h1>
+    <p class="text-blue-100 text-sm max-w-3xl">Analisis Eskalasi Isu Tuntutan Kompensasi &amp; Ganti Rugi Elektronik — Pasca Blackout Sumatra</p>
+    <div class="flex flex-wrap items-center gap-3 mt-4 text-xs text-blue-100">
+      <span><svg class="ico mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Periode: 2 – 3 Juni 2026</span>
+      <span><svg class="ico mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M16 8h-6"/><path d="M16 12h-6"/><path d="M13 16h-3"/></svg>13 Artikel · 13 Media</span>
+      <span><svg class="ico mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>2 Lokasi: Medan &amp; Labura</span>
+      <span><svg class="ico mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>2 Gelombang Aksi</span>
+    </div>
+  </div>
+</header>
+
+<main class="px-3 py-5">
+
+  <!-- Headline Insight -->
+  <section class="mb-5">
+    <div class="bg-gradient-to-r from-blue-50 to-white border-l-4 border-[#0055A4] p-4 rounded-r-xl shadow-sm">
+      <p class="text-[#0055A4] font-bold text-lg mb-1"><svg class="ico mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>Executive Summary</p>
+      <p class="text-slate-700 text-base leading-relaxed">
+        Isu menunjukkan <strong>volume yang bertahan tinggi</strong> — pemberitaan stabil di kisaran 7 entri (2 Jun) dan 6 entri (3 Jun),
+        dan seluruhnya (100%) masih berputar di <strong>media lokal/regional Sumatra</strong> tanpa satu pun media tier-1 nasional. Namun di balik
+        footprint yang masih regional itu, isu <strong>eskalatif secara substansi</strong>: koalisi melebar dari mahasiswa ke buruh multisektor, dan
+        tuntutan meningkat dari sekadar kompensasi menjadi <strong>desakan mundur pimpinan, copot Dirut PLN, hingga pengusutan dugaan korupsi</strong>.
+        Muncul pula bingkai baru yang <strong>menolak narasi "penyebab cuaca" dan mempertanyakan klaim surplus energi</strong>. Volume yang tinggi
+        namun belum naik ke kanal nasional ini adalah jendela aksi — <strong>bukan jaminan aman.</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- KPI Cards -->
+  <section class="mb-6">
+    <div class="grid grid-cols-2 gap-3">
+      <div class="kpi-card bg-white rounded-xl p-3 shadow-sm border border-slate-100 text-center">
+        <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Total Artikel</div>
+        <div class="text-2xl font-bold text-[#0055A4]">13</div>
+        <div class="text-xs text-slate-400 mt-1">8 konten unik</div>
+      </div>
+      <div class="kpi-card bg-white rounded-xl p-3 shadow-sm border border-slate-100 text-center">
+        <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Sentimen Negatif</div>
+        <div class="text-2xl font-bold text-red-600">92%</div>
+        <div class="text-xs text-red-400 mt-1">12 dari 13 artikel</div>
+      </div>
+      <div class="kpi-card bg-white rounded-xl p-3 shadow-sm border border-slate-100 text-center">
+        <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Media Tier-1 Nasional</div>
+        <div class="text-2xl font-bold text-[#00A651]">0</div>
+        <div class="text-xs text-slate-400 mt-1">Semua lokal/regional</div>
+      </div>
+      <div class="kpi-card bg-white rounded-xl p-3 shadow-sm border border-slate-100 text-center">
+        <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Gelombang Aksi</div>
+        <div class="text-2xl font-bold text-[#F26522]">2</div>
+        <div class="text-xs text-slate-400 mt-1">2 &amp; 3 Juni</div>
+      </div>
+      <div class="kpi-card bg-white rounded-xl p-3 shadow-sm border border-slate-100 text-center">
+        <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Elemen Koalisi</div>
+        <div class="text-2xl font-bold text-[#0055A4]">9</div>
+        <div class="text-xs text-slate-400 mt-1">Puncak 3 Jun (dari 5)</div>
+      </div>
+      <div class="kpi-card bg-white rounded-xl p-3 shadow-sm border border-slate-100 text-center">
+        <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Status Eskalasi</div>
+        <div class="text-xl font-bold text-red-700 leading-tight mt-1">ESKALATIF</div>
+        <div class="text-xs text-slate-400 mt-1">Volume bertahan, substansi naik</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core thesis: two charts side by side -->
+  <section class="mb-6">
+    <div class="grid grid-cols-1 gap-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+        <h2 class="text-base font-bold text-slate-800 mb-1">Volume &amp; Sentimen per Hari</h2>
+        <p class="text-sm text-slate-500 mb-4">Volume bertahan tinggi: 7 artikel (2 Jun) lalu 6 artikel (3 Jun)</p>
+        <div id="volumeChart" class="chart-container" style="height: 195px;"></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+        <h2 class="text-base font-bold text-slate-800 mb-1">Indikator Eskalasi: 2 Jun vs 3 Jun</h2>
+        <p class="text-sm text-slate-500 mb-4">Sisi "eskalatif": koalisi, tuntutan, dan sektor massa justru membesar</p>
+        <div id="eskalasiChart" class="chart-container" style="height: 195px;"></div>
+      </div>
+    </div>
+    <p class="text-xs text-slate-500 mt-3 italic text-center"><svg class="ico mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="11"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inti laporan: volume bertahan tinggi di kedua hari sementara substansi tuntutan terus menanjak — eskalasi terjadi di <em>dua sumbu sekaligus</em>, belum sekadar bergeser dari volume ke substansi.</p>
+  </section>
+
+  <!-- Donut + Narasi Bar -->
+  <section class="mb-6">
+    <div class="grid grid-cols-1 gap-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+        <h2 class="text-base font-bold text-slate-800 mb-1">Distribusi Sentimen Media</h2>
+        <p class="text-sm text-slate-500 mb-4">Dominasi negatif 92%, nol artikel positif; suara PLN hanya hadir di 1 artikel</p>
+        <div id="donutChart" class="chart-container" style="height: 195px;"></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+        <h2 class="text-base font-bold text-slate-800 mb-1">Frekuensi Narasi / Framing</h2>
+        <p class="text-sm text-slate-500 mb-4">Tuntutan kompensasi mendominasi; bingkai politik, korupsi &amp; penolakan narasi cuaca menguat di gelombang 3 Jun</p>
+        <div id="narasiChart" class="chart-container" style="height: 195px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Escalation Ladder -->
+  <section class="mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+      <h2 class="text-base font-bold text-slate-800 mb-1">Tangga Eskalasi Tuntutan</h2>
+      <p class="text-sm text-slate-500 mb-6">Dari ganti rugi elektronik (operasional) menanjak ke isu korupsi &amp; tata kelola (politik-hukum). Semakin ke atas, semakin sulit di-delokalisasi dan semakin berisiko menarik perhatian nasional.</p>
+      <div class="grid grid-cols-1 gap-3">
+        <div>
+          <div class="ladder-rung" style="background:#0055A4;">
+            <div class="flex items-start gap-3">
+              <div class="num">1</div>
+              <div>
+                <div class="font-bold">Kompensasi &amp; ganti rugi elektronik</div>
+                <div class="text-xs text-blue-100 mt-1">TV, mesin cuci, kulkas rusak akibat gangguan tegangan — tuntutan dasar, muncul di seluruh artikel</div>
+              </div>
+            </div>
+          </div>
+          <div class="ladder-connector"></div>
+          <div class="ladder-rung" style="background:#0a6fb8;">
+            <div class="flex items-start gap-3">
+              <div class="num">2</div>
+              <div>
+                <div class="font-bold">Peningkatan kualitas &amp; keandalan layanan</div>
+                <div class="text-xs text-blue-100 mt-1">Desakan agar gangguan tak berulang; pertanyaan soal pengelolaan anggaran besar</div>
+              </div>
+            </div>
+          </div>
+          <div class="ladder-connector"></div>
+          <div class="ladder-rung" style="background:#1d8fc0;">
+            <div class="flex items-start gap-3">
+              <div class="num">3</div>
+              <div>
+                <div class="font-bold">Surat rekomendasi resmi ke PLN Pusat (Jakarta)</div>
+                <div class="text-xs text-blue-100 mt-1">Eskalasi jalur: menarik isu dari level wilayah ke level pusat</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-0">
+          <div class="ladder-rung" style="background:#F26522;">
+            <div class="flex items-start gap-3">
+              <div class="num">4</div>
+              <div>
+                <div class="font-bold">Desakan GM PLN UID Sumut mundur</div>
+                <div class="text-xs text-orange-50 mt-1">Dari kritik layanan menjadi tuntutan personal terhadap pimpinan</div>
+              </div>
+            </div>
+          </div>
+          <div class="ladder-connector"></div>
+          <div class="ladder-rung" style="background:#e1492a;">
+            <div class="flex items-start gap-3">
+              <div class="num">5</div>
+              <div>
+                <div class="font-bold">Presiden diminta copot Dirut PLN</div>
+                <div class="text-xs text-red-50 mt-1">Dirut PLN Darmawan Prasodjo — eskalasi ke panggung nasional/politik</div>
+              </div>
+            </div>
+          </div>
+          <div class="ladder-connector"></div>
+          <div class="ladder-rung" style="background:#b91c1c;">
+            <div class="flex items-start gap-3">
+              <div class="num">6</div>
+              <div>
+                <div class="font-bold">Usut dugaan korupsi + audit transmisi 275 kV</div>
+                <div class="text-xs text-red-50 mt-1">"Pecah paket" SPKLU &amp; konsultan hukum Rp13,5 M (dugaan) → pergeseran bingkai ke ranah hukum. <span class="font-semibold">Vektor paling berbahaya.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Actor Map -->
+  <section class="mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+      <h2 class="text-base font-bold text-slate-800 mb-1">Peta Aktor</h2>
+      <p class="text-sm text-slate-500 mb-5">Pemetaan berjenjang penggerak, amplifier, target, dan suara PLN dalam dua gelombang aksi</p>
+
+      <!-- Penggerak inti -->
+      <div class="mb-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#0055A4]"></span>
+          <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide">Penggerak Inti (Tulang Punggung)</h3>
+        </div>
+        <div class="grid grid-cols-1 gap-3">
+          <div class="actor-node border border-slate-200 rounded-lg p-4 bg-blue-50/40">
+            <div class="flex items-center justify-between mb-1">
+              <h4 class="font-bold text-slate-800"><svg class="ico text-[#0055A4] mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Dewan Peduli Negeri (DPN)</h4>
+              <span class="badge risk-very-high">DRIVER</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-2">Korlap: Acil Tattoo (2 Jun) &middot; Riza Nasution (3 Jun)</p>
+            <p class="text-sm text-slate-600">Hadir di kedua gelombang. Organisator paling konsisten yang menjaga isu tetap hidup harian dan mengancam aksi lanjutan ke Jakarta.</p>
+          </div>
+          <div class="actor-node border border-slate-200 rounded-lg p-4 bg-blue-50/40">
+            <div class="flex items-center justify-between mb-1">
+              <h4 class="font-bold text-slate-800"><svg class="ico text-[#0055A4] mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2.5 9 2.5 12 0v-5"/><line x1="22" y1="10" x2="22" y2="16"/></svg>Gerakan Cipayung Plus Sumut</h4>
+              <span class="badge risk-very-high">DRIVER</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-2">GMNI &middot; GMKI &middot; IMM &middot; KAMMI — Jubir: Irham S. Rambe &amp; Akbar Muhadist</p>
+            <p class="text-sm text-slate-600">Tuntutan paling terstruktur &amp; tajam: korupsi, mundur pimpinan, micro-grid, tolak narasi cuaca. Tokoh: Rahmat T. Pardede, Chrisye Sitorus, Armando Sitompul.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amplifier -->
+      <div class="mb-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#F26522]"></span>
+          <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide">Amplifier Koalisi (Pembesaran 3 Juni)</h3>
+        </div>
+        <div class="grid grid-cols-1 gap-3">
+          <div class="actor-node border border-slate-200 rounded-lg p-4 bg-orange-50/40">
+            <div class="flex items-center justify-between mb-1">
+              <h4 class="font-bold text-slate-800 text-sm"><svg class="ico text-[#F26522] mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15a8 8 0 0 1 16 0"/><path d="M9 7V4h6v3"/><rect x="2" y="15" width="20" height="4" rx="1"/></svg>KSPSI AGN Sumut</h4>
+              <span class="badge risk-high">MILITAN</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-2">Elemen serikat buruh dalam koalisi 3 Jun</p>
+            <p class="text-sm text-slate-600">Retorika keras; daya tahan mobilisasi buruh memberi isu "kaki" jangka panjang.</p>
+          </div>
+          <div class="actor-node border border-slate-200 rounded-lg p-4 bg-orange-50/40">
+            <h4 class="font-bold text-slate-800 text-sm mb-2"><svg class="ico text-[#F26522] mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Elemen Multisektor Lainnya</h4>
+            <div class="flex flex-wrap gap-2">
+              <span class="badge bg-white text-slate-600 border border-slate-200">PRABU (Buruh)</span>
+              <span class="badge bg-white text-slate-600 border border-slate-200">OBB (Ojol)</span>
+              <span class="badge bg-white text-slate-600 border border-slate-200">Serikat Nelayan &amp; Petani</span>
+              <span class="badge bg-white text-slate-600 border border-slate-200">FPAN</span>
+              <span class="badge bg-white text-slate-600 border border-slate-200">AWAS (Wartawan)</span>
+              <span class="badge bg-white text-slate-600 border border-slate-200">Front Peduli Wanita</span>
+              <span class="badge bg-white text-slate-600 border border-slate-200">DEMASU</span>
+            </div>
+            <p class="text-sm text-slate-600 mt-2"><svg class="ico text-[#F26522] mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10.29 3.86-8.18 14.14a2 2 0 0 0 1.71 3h16.36a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Catatan: AWAS (aliansi wartawan) adalah pelaku aksi <em>sekaligus</em> elemen pers — menaikkan risiko liputan simpatik.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Satelit + Target + PLN -->
+      <div class="grid grid-cols-1 gap-3">
+        <div class="actor-node border border-slate-200 rounded-lg p-4">
+          <div class="flex items-center gap-2 mb-2"><span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span><h3 class="font-bold text-slate-700 text-xs uppercase tracking-wide">Satelit / Laten</h3></div>
+          <h4 class="font-bold text-slate-800 text-sm"><svg class="ico text-yellow-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Warga Kualuh Hilir, Labura</h4>
+          <p class="text-xs text-slate-500 mb-2">Wajah: Dewi Sartika</p>
+          <p class="text-sm text-slate-600">Keluhan tegangan drop (210V). Mengancam beraksi ke UP3 Rantauprapat &amp; UID Medan — titik konvergensi geografis.</p>
+        </div>
+        <div class="actor-node border border-slate-200 rounded-lg p-4">
+          <div class="flex items-center gap-2 mb-2"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span><h3 class="font-bold text-slate-700 text-xs uppercase tracking-wide">Target Tuntutan</h3></div>
+          <ul class="text-sm text-slate-600 space-y-1.5">
+            <li><svg class="ico text-red-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-1a5 5 0 0 0-5-5h-4a5 5 0 0 0-5 5v1"/><circle cx="12" cy="7" r="4"/><path d="M12 11v3"/></svg>GM PLN UID Sumut <span class="text-xs text-slate-400">(diminta mundur)</span></li>
+            <li><svg class="ico text-red-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-1a5 5 0 0 0-5-5h-4a5 5 0 0 0-5 5v1"/><circle cx="12" cy="7" r="4"/><path d="M12 11v3"/></svg>Dirut PLN Darmawan Prasodjo <span class="text-xs text-slate-400">(diminta dicopot)</span></li>
+            <li><svg class="ico text-red-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-1a5 5 0 0 0-5-5h-4a5 5 0 0 0-5 5v1"/><circle cx="12" cy="7" r="4"/><path d="M12 11v3"/></svg>Manager UP3 Rantauprapat Dwita A. Syafitri</li>
+          </ul>
+        </div>
+        <div class="actor-node border-2 border-[#0055A4] rounded-lg p-4 bg-blue-50/40">
+          <div class="flex items-center gap-2 mb-2"><span class="w-2.5 h-2.5 rounded-full bg-[#0055A4]"></span><h3 class="font-bold text-slate-700 text-xs uppercase tracking-wide">Suara PLN</h3></div>
+          <h4 class="font-bold text-slate-800 text-sm"><svg class="ico text-[#0055A4] mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>Darma Saputra</h4>
+          <p class="text-xs text-slate-500 mb-2">GM Komunikasi PLN UID Sumut</p>
+          <p class="text-sm text-slate-600"><strong>Satu-satunya</strong> suara PLN di seluruh sampel — memikul beban respons sendirian, sementara pimpinan wilayah tak tampak.</p>
+        </div>
+      </div>
+
+      <div class="mt-4 bg-slate-50 rounded-lg p-4">
+        <p class="text-sm text-slate-600"><svg class="ico text-slate-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/><path d="M12 8v3M5 16v-2h14v2M12 11v3"/></svg><span class="font-semibold text-slate-700">Saluran institusional yang ditarik masuk (jalur eskalasi):</span> Presiden RI &middot; Polda Sumut &middot; Kejaksaan Tinggi DKI Jakarta &middot; DPRD Sumut.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section class="mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+      <h2 class="text-base font-bold text-slate-800 mb-1">Kronologi Dua Gelombang Aksi</h2>
+      <p class="text-sm text-slate-500 mb-6">Volume menurun, tetapi intensitas tuntutan &amp; luas koalisi menanjak</p>
+      <div class="grid grid-cols-1 gap-4">
+        <div class="timeline-item">
+          <div class="bg-blue-50 rounded-lg p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-[#0055A4]">GELOMBANG 1 — Selasa, 2 Juni 2026</span>
+              <span class="badge bg-white text-[#0055A4] border border-blue-100">7 entri · 4 unik</span>
+            </div>
+            <p class="text-sm text-slate-700 mb-2">Demo DPN &amp; Cipayung Plus di depan kantor PLN UID Sumut (Jl. Yos Sudarso, Medan). Aksi ricuh — pagar kantor ambruk/jebol, ban dibakar. Massa membawa TV, mesin cuci, lampu rusak sebagai simbol protes.</p>
+            <p class="text-sm text-slate-600"><strong>Tuntutan:</strong> kompensasi &amp; ganti rugi; peningkatan kualitas layanan.</p>
+            <p class="text-sm text-slate-600 mt-1"><strong>Satelit:</strong> warga Labura (Kualuh Hilir) mengeluhkan tegangan drop 210V &amp; mengancam aksi.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="bg-red-50 rounded-lg p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-red-600">GELOMBANG 2 — Rabu, 3 Juni 2026</span>
+              <span class="badge bg-white text-red-600 border border-red-100">6 entri · paling berat substansi</span>
+            </div>
+            <p class="text-sm text-slate-700 mb-2">Koalisi melebar ke buruh &amp; multisektor (KSPSI, PRABU, OBB, nelayan-petani, wartawan, dll). Bakar ban, lempar elektronik ke aspal, lalu lintas macet. Cipayung Plus menolak narasi "penyebab cuaca" &amp; menuding pimpinan berlindung di balik agenda AFF.</p>
+            <p class="text-sm text-slate-600"><strong>Eskalasi tuntutan:</strong> GM mundur, copot Dirut, usut dugaan korupsi, audit transmisi 275 kV.</p>
+            <p class="text-sm text-slate-600 mt-1"><strong>Ancaman:</strong> warga Labura mengancam aksi ke UP3 Rantauprapat &amp; UID Medan; tuntutan diarahkan ke institusi pusat (Presiden, Kejati DKI).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footprint + Media table -->
+  <section class="mb-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+        <h2 class="text-lg font-bold text-slate-800 mb-1">Komposisi Pemberitaan</h2>
+        <p class="text-sm text-slate-500 mb-4">Footprint lebih kecil dari yang terlihat — 5 dari 13 artikel adalah republikasi</p>
+        <div id="footprintChart" class="chart-container" style="height: 200px;"></div>
+        <p class="text-xs text-slate-500 mt-3"><svg class="ico mr-1 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Tiga klaster sindikasi: <strong>1kabar.com</strong> (asal) disalin majalahceo, jurnaltransparansi &amp; suarasumutonline; <strong>axialnews.id</strong> disalin tobapos; <strong>posmetromedan.id</strong> disalin bhinekanews.</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 lg:col-span-2">
+        <h2 class="text-lg font-bold text-slate-800 mb-4">Tabel Klasifikasi Media</h2>
+        <div class="overflow-x-auto">
+          <table class="data-table w-full text-sm">
+            <thead>
+              <tr><th>Media</th><th>Tanggal</th><th>Sentimen</th><th>Narasumber</th><th>Peran</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="font-semibold text-slate-700">waspada.co.id</td><td>3 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Irham S. Rambe</td><td>Paling eskalatif (mundur + korupsi)</td></tr>
+              <tr><td class="font-semibold text-slate-700">posmetromedan.id</td><td>3 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Riza Nasution</td><td>Koalisi buruh multisektor (asal)</td></tr>
+              <tr class="bg-slate-50"><td class="font-semibold text-slate-700">bhinekanews.id</td><td>3 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Riza Nasution</td><td>Republikasi posmetromedan</td></tr>
+              <tr><td class="font-semibold text-slate-700">teropongdaily.com</td><td>3 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Armando K. Sitompul</td><td>Tolak narasi cuaca &amp; surplus</td></tr>
+              <tr class="bg-slate-50"><td class="font-semibold text-slate-700">axialnews.id</td><td>3 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Akbar Muhadist</td><td>Cipayung: "AFF tameng" (asal)</td></tr>
+              <tr><td class="font-semibold text-slate-700">tobapos.co</td><td>3 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Akbar Muhadist</td><td>Republikasi axialnews</td></tr>
+              <tr class="bg-slate-50"><td class="font-semibold text-slate-700">1kabar.com</td><td>2 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Acil Tattoo</td><td>Hub narasi DPN (asal)</td></tr>
+              <tr><td class="font-semibold text-slate-700">majalahceo.id</td><td>2 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Acil Tattoo</td><td>Republikasi 1kabar</td></tr>
+              <tr class="bg-slate-50"><td class="font-semibold text-slate-700">jurnaltransparansi.com</td><td>2 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Acil Tattoo</td><td>Republikasi 1kabar</td></tr>
+              <tr><td class="font-semibold text-slate-700">suarasumutonline.id</td><td>2 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Acil Tattoo</td><td>Republikasi 1kabar</td></tr>
+              <tr class="bg-slate-50"><td class="font-semibold text-slate-700">nusantarajayanews.id</td><td>2 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>Dewi Sartika (warga)</td><td>Satelit Labura</td></tr>
+              <tr><td class="font-semibold text-slate-700">bicaraindonesia.net</td><td>2 Jun</td><td><span class="badge risk-high">Negatif</span></td><td>&mdash;</td><td>Judul saja</td></tr>
+              <tr class="bg-slate-50"><td class="font-semibold text-slate-700">tubinnews.com</td><td>2 Jun</td><td><span class="badge bg-slate-200 text-slate-600">Netral</span></td><td>Darma Saputra</td><td>Satu-satunya bingkai berimbang</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quotes -->
+  <section class="mb-6">
+    <h2 class="text-base font-bold text-slate-800 mb-3">Kutipan &amp; Bingkai Kunci</h2>
+    <div class="grid grid-cols-1 gap-3">
+      <div class="quote-card bg-white rounded-xl shadow-sm border border-slate-100 p-4 pt-9">
+        <p class="text-slate-700 italic leading-relaxed mb-3">"Kami tidak butuh permintaan maaf. Kami butuh bukti nyata terkait kompensasi."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#0055A4] text-white flex items-center justify-center font-bold text-sm">AT</div>
+          <div><div class="font-semibold text-slate-800 text-sm">Acil Tattoo</div><div class="text-xs text-slate-500">Koordinator Aksi, DPN (2 Jun)</div></div>
+        </div>
+      </div>
+      <div class="quote-card bg-white rounded-xl shadow-sm border border-slate-100 p-4 pt-9">
+        <p class="text-slate-700 italic leading-relaxed mb-3">Meragukan penyebab blackout dua hari hanya karena faktor cuaca, sembari mempertanyakan klaim surplus energi PLN dan menuntut Dirut dicopot.</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#F26522] text-white flex items-center justify-center font-bold text-sm">AS</div>
+          <div><div class="font-semibold text-slate-800 text-sm">Armando K. Sitompul</div><div class="text-xs text-slate-500">Ketua DPD GMNI Sumut (3 Jun)</div></div>
+        </div>
+      </div>
+      <div class="quote-card bg-white rounded-xl shadow-sm border border-slate-100 p-4 pt-9">
+        <p class="text-slate-700 italic leading-relaxed mb-3">Menyebut klaim listrik telah pulih 100% di Sumut sebagai pembohongan publik, sembari menuntut pertanggungjawaban pejabat PLN.</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#00A651] text-white flex items-center justify-center font-bold text-sm">DS</div>
+          <div><div class="font-semibold text-slate-800 text-sm">Dewi Sartika</div><div class="text-xs text-slate-500">Warga Kualuh Hilir, Labura</div></div>
+        </div>
+      </div>
+      <div class="quote-card bg-white rounded-xl shadow-sm border border-slate-100 p-4 pt-9">
+        <p class="text-slate-700 italic leading-relaxed mb-3">Menuding pimpinan PLN UID Sumut berlindung di balik agenda pertandingan AFF untuk menghindari pertanggungjawaban.</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-slate-600 text-white flex items-center justify-center font-bold text-sm">IR</div>
+          <div><div class="font-semibold text-slate-800 text-sm">Irham Saddani Rambe</div><div class="text-xs text-slate-500">Ketua KAMMI Sumut / Cipayung Plus</div></div>
+        </div>
+      </div>
+      <div class="quote-card bg-white rounded-xl shadow-sm border border-slate-100 p-6 pt-10">
+        <p class="text-slate-700 italic leading-relaxed mb-3">PLN menyatakan menerima aspirasi massa dan akan meneruskan tuntutan kompensasi maupun ganti rugi kepada pihak berwenang sebagai bahan perhatian dan evaluasi.</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#0055A4] text-white flex items-center justify-center font-bold text-sm">DS</div>
+          <div><div class="font-semibold text-slate-800 text-sm">Darma Saputra <span class="badge risk-low ml-2">RESPONS PLN</span></div><div class="text-xs text-slate-500">GM Komunikasi PLN UID Sumut</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vulnerabilities -->
+  <section class="mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+      <h2 class="text-base font-bold text-slate-800 mb-1">Titik Rawan PLN</h2>
+      <p class="text-sm text-slate-500 mb-4">Empat eksposur reputasi yang menjadi bahan bakar eskalasi termurah</p>
+      <div class="grid grid-cols-1 gap-3">
+        <div class="bg-red-50 border border-red-100 rounded-lg p-4">
+          <h3 class="font-bold text-red-800 text-sm mb-1"><svg class="ico mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-1a5 5 0 0 0-5-5h-4a5 5 0 0 0-5 5v1"/><circle cx="12" cy="7" r="4"/><line x1="2" y1="2" x2="22" y2="22"/></svg>Beban di satu juru bicara</h3>
+          <p class="text-sm text-slate-600">Seluruh respons dipikul Darma; GM/pimpinan wilayah tak tampak → memperkuat narasi "pimpinan sembunyi/menghindar".</p>
+        </div>
+        <div class="bg-red-50 border border-red-100 rounded-lg p-4">
+          <h3 class="font-bold text-red-800 text-sm mb-1"><svg class="ico mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 4 14 12 14 11 22 20 10 12 10 13 2"/></svg>Klaim "pulih 100%" vs realitas Labura</h3>
+          <p class="text-sm text-slate-600">Tegangan 210V di Labura mudah memfalsifikasi klaim normalisasi → tuduhan "pembohongan publik".</p>
+        </div>
+        <div class="bg-yellow-50 border border-yellow-100 rounded-lg p-4">
+          <h3 class="font-bold text-yellow-700 text-sm mb-1"><svg class="ico mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.9 16.1a9 9 0 0 1 0-8.2"/><path d="M7.8 13.8a5 5 0 0 1 0-3.6"/><path d="M19.1 7.9a9 9 0 0 1 0 8.2"/><path d="M16.2 10.2a5 5 0 0 1 0 3.6"/><circle cx="12" cy="12" r="2"/></svg>Narasi "penyebab cuaca" &amp; klaim surplus dipertanyakan</h3>
+          <p class="text-sm text-slate-600">Mahasiswa menilai blackout dua hari tak masuk akal jika hanya akibat cuaca di wilayah surplus pembangkit → membuka ruang teori "ada persoalan lebih besar".</p>
+        </div>
+        <div class="bg-red-50 border border-red-100 rounded-lg p-4">
+          <h3 class="font-bold text-red-800 text-sm mb-1"><svg class="ico mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 13-7.8 7.8a2 2 0 0 1-2.8-2.8L11.2 10.2"/><path d="m15.5 15.5 5-5"/><path d="m8.5 8.5 5-5"/><path d="m9.5 6.5 8 8"/></svg>Kontaminasi isu korupsi</h3>
+          <p class="text-sm text-slate-600">Meski blackout murni operasional, bingkai korupsi (dugaan) mencemari kredibilitas seluruh institusi.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Early warning -->
+  <section class="mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+      <h2 class="text-base font-bold text-slate-800 mb-1">Indikator Dini (Early Warning)</h2>
+      <p class="text-sm text-slate-500 mb-4">Lima pemicu yang menandai lompatan dari "landai" ke krisis non-linier</p>
+      <div class="grid grid-cols-1 gap-3">
+        <div class="bg-slate-50 rounded-lg p-4 text-center"><svg class="ico text-[#0055A4] text-xl mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.9 16.1a9 9 0 0 1 0-8.2"/><path d="M7.8 13.8a5 5 0 0 1 0-3.6"/><path d="M19.1 7.9a9 9 0 0 1 0 8.2"/><path d="M16.2 10.2a5 5 0 0 1 0 3.6"/><circle cx="12" cy="12" r="2"/><path d="M12 14v8"/></svg><p class="text-sm text-slate-700 font-medium">Pickup media tier-1 nasional</p><p class="text-xs text-slate-500 mt-1">terutama via thread korupsi</p></div>
+        <div class="bg-slate-50 rounded-lg p-4 text-center"><svg class="ico text-[#F26522] text-xl mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="8" height="13" rx="1"/><rect x="11" y="3" width="10" height="18" rx="1"/><path d="M6 12h2M6 16h2M15 7h2M15 11h2M15 15h2"/></svg><p class="text-sm text-slate-700 font-medium">Aksi/eskalasi ke pusat</p><p class="text-xs text-slate-500 mt-1">tuntutan diarahkan ke Presiden &amp; Kejati DKI</p></div>
+        <div class="bg-slate-50 rounded-lg p-4 text-center"><svg class="ico text-red-600 text-xl mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 21h14"/><path d="M7 7 4 14h6L7 7Z"/><path d="M17 7l-3 7h6l-3-7Z"/></svg><p class="text-sm text-slate-700 font-medium">Kemajuan kasus hukum</p><p class="text-xs text-slate-500 mt-1">Kejati DKI / Bareskrim</p></div>
+        <div class="bg-slate-50 rounded-lg p-4 text-center"><svg class="ico text-yellow-600 text-xl mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 6 9 3 15 6 21 3 21 15 15 18 9 15 3 18 3 6"/><line x1="9" y1="3" x2="9" y2="15"/><line x1="15" y1="6" x2="15" y2="13"/><path d="M18 16c0 2-2.5 4-2.5 4S13 18 13 16a2.5 2.5 0 0 1 5 0Z"/></svg><p class="text-sm text-slate-700 font-medium">Konvergensi Labura ↔ Medan</p><p class="text-xs text-slate-500 mt-1">penyebaran geografis menyatu</p></div>
+        <div class="bg-slate-50 rounded-lg p-4 text-center"><svg class="ico text-[#00A651] text-xl mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/><path d="m13 5-3 4 4 2.5-2 3.5"/></svg><p class="text-sm text-slate-700 font-medium">Korban/kerugian baru</p><p class="text-xs text-slate-500 mt-1">yang dapat dipersonifikasi</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scenarios -->
+  <section class="mb-6">
+    <h2 class="text-base font-bold text-slate-800 mb-3">Skenario Proyeksi</h2>
+    <div class="grid grid-cols-1 gap-3">
+      <div class="scenario-card bg-white rounded-xl shadow-sm p-4" style="border-top-color:#94a3b8;">
+        <div class="flex items-center justify-between mb-2"><h3 class="font-bold text-slate-800">Base Case</h3><span class="badge risk-medium">SEDANG</span></div>
+        <p class="text-sm text-slate-600">Komunikasi status quo: bara regional berlanjut, aksi periodik, sentimen tetap negatif. Risiko sedang pickup nasional via thread korupsi dalam 1–2 minggu.</p>
+      </div>
+      <div class="scenario-card bg-white rounded-xl shadow-sm p-4" style="border-top-color:#ef4444;">
+        <div class="flex items-center justify-between mb-2"><h3 class="font-bold text-slate-800">Eskalasi</h3><span class="badge risk-very-high">TINGGI</span></div>
+        <p class="text-sm text-slate-600">Kasus korupsi maju + aksi Jakarta terwujud + tier-1 pickup → krisis reputasi nasional berdimensi politik (Presiden, DPR).</p>
+      </div>
+      <div class="scenario-card bg-white rounded-xl shadow-sm p-4" style="border-top-color:#00A651;">
+        <div class="flex items-center justify-between mb-2"><h3 class="font-bold text-slate-800">De-eskalasi</h3><span class="badge risk-low">TERKENDALI</span></div>
+        <p class="text-sm text-slate-600">Kepemimpinan tampak + mekanisme kompensasi konkret + pesan terkalibrasi → keluhan diredam sebelum konvergensi ke Jakarta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recommendations -->
+  <section class="mb-6">
+    <h2 class="text-base font-bold text-slate-800 mb-3">Rekomendasi Strategis</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="recommendation-card bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center gap-2 mb-2"><svg class="ico text-[#0055A4]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-1a5 5 0 0 0-5-5h-4a5 5 0 0 0-5 5v1"/><circle cx="12" cy="7" r="4"/><path d="M12 11v3"/></svg><h3 class="font-bold text-slate-800">1. Visibilitas Kepemimpinan</h3></div>
+        <p class="text-sm text-slate-600">Munculkan GM/pimpinan secara terukur untuk mematikan bingkai "sembunyi di balik AFF" — bahan bakar eskalasi termurah saat ini.</p>
+      </div>
+      <div class="recommendation-card bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center gap-2 mb-2"><svg class="ico text-[#00A651]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="11" r="8"/><path d="M14.2 8.6A2.4 2.4 0 0 0 12 7.4c-1.3 0-2.4.8-2.4 1.9s1.1 1.7 2.4 1.7 2.4.7 2.4 1.8-1.1 1.9-2.4 1.9a2.4 2.4 0 0 1-2.2-1.2"/><path d="M12 5.8v1.6M12 14.6v1.6"/></svg><h3 class="font-bold text-slate-800">2. Mekanisme Kompensasi Konkret</h3></div>
+        <p class="text-sm text-slate-600">Terbitkan alur klaim, kriteria, dan tenggat yang jelas. Tuntutan berulang adalah "bukti nyata, bukan maaf"; kekaburan adalah oksigen isu.</p>
+      </div>
+      <div class="recommendation-card bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center gap-2 mb-2"><svg class="ico text-[#F26522]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg><h3 class="font-bold text-slate-800">3. Kalibrasi Pesan Pemulihan</h3></div>
+        <p class="text-sm text-slate-600">Hentikan klaim "pulih 100%" selama Labura &amp; titik lain masih bermasalah tegangan; pernyataan absolut mudah dipatahkan.</p>
+      </div>
+      <div class="recommendation-card bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center gap-2 mb-2"><svg class="ico text-[#0055A4]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><h3 class="font-bold text-slate-800">4. Pisahkan Dua Narasi</h3></div>
+        <p class="text-sm text-slate-600">Jaga isu operasional (blackout/kompensasi) tidak menyatu dengan isu tata kelola (korupsi) dalam satu siklus berita.</p>
+      </div>
+      <div class="recommendation-card bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center gap-2 mb-2"><svg class="ico text-[#00A651]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M10 14.5h4"/><path d="M6 11V5h3v3"/><path d="M18 11V5h-3v3"/></svg><h3 class="font-bold text-slate-800">5. Pantau Pemicu Eskalasi</h3></div>
+        <p class="text-sm text-slate-600">Aktifkan pemantauan terhadap kelima indikator dini, khususnya thread korupsi &amp; rencana aksi Jakarta.</p>
+      </div>
+      <div class="recommendation-card bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center gap-2 mb-2"><svg class="ico text-[#F26522]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><h3 class="font-bold text-slate-800">6. Postur Transparansi Proaktif</h3></div>
+        <p class="text-sm text-slate-600">Antisipasi jalur korupsi dengan keterbukaan, bukan diam — diam memperbesar ruang spekulasi.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Takeaways -->
+  <section class="mb-6">
+    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-lg p-4 text-white">
+      <h2 class="text-base font-bold mb-3"><svg class="ico text-yellow-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2Z"/></svg>Key Takeaways</h2>
+      <div class="grid grid-cols-1 gap-3">
+        <div class="bg-white/10 backdrop-blur rounded-lg p-4"><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-[#0055A4] flex items-center justify-center text-sm font-bold shrink-0">1</div><div><div class="font-semibold mb-1">Volume Tinggi &amp; Bertahan</div><p class="text-sm text-slate-300">Pemberitaan stabil tinggi (7 lalu 6 entri) — tak menyurut, sementara substansi tuntutan ikut menanjak.</p></div></div></div>
+        <div class="bg-white/10 backdrop-blur rounded-lg p-4"><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-[#00A651] flex items-center justify-center text-sm font-bold shrink-0">2</div><div><div class="font-semibold mb-1">Koalisi Membesar</div><p class="text-sm text-slate-300">Dari mahasiswa (5 elemen) ke buruh multisektor (9 elemen) — daya tahan mobilisasi naik.</p></div></div></div>
+        <div class="bg-white/10 backdrop-blur rounded-lg p-4"><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-[#F26522] flex items-center justify-center text-sm font-bold shrink-0">3</div><div><div class="font-semibold mb-1">Issue Stacking</div><p class="text-sm text-slate-300">Blackout dibundel dengan korupsi, ketahanan energi, &amp; desakan pencopotan pimpinan.</p></div></div></div>
+        <div class="bg-white/10 backdrop-blur rounded-lg p-4"><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-sm font-bold shrink-0">4</div><div><div class="font-semibold mb-1">Vektor Korupsi = Paling Berbahaya</div><p class="text-sm text-slate-300">Menggeser isu dari "kegagalan layanan" ke "tata kelola" yang bisa di-delokalisasi ke nasional.</p></div></div></div>
+        <div class="bg-white/10 backdrop-blur rounded-lg p-4"><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-sm font-bold shrink-0">5</div><div><div class="font-semibold mb-1">Ancaman Berlanjut</div><p class="text-sm text-slate-300">Warga Labura mengancam aksi ke UP3/UID &amp; tuntutan diarahkan ke institusi pusat → trajektori naik, bukan datar.</p></div></div></div>
+        <div class="bg-white/10 backdrop-blur rounded-lg p-4"><div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center text-sm font-bold shrink-0">6</div><div><div class="font-semibold mb-1">Jendela Aksi = Sekarang</div><p class="text-sm text-slate-300">Selama isu masih berfase regional, biaya peredaman jauh lebih murah daripada setelah pickup nasional.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function initCharts() {
+    var palette = { blue:'#0055A4', green:'#00A651', orange:'#F26522', red:'#ef4444', slate:'#94a3b8', yellow:'#eab308', purple:'#8b5cf6' };
+    var tip = { backgroundColor:'rgba(255,255,255,0.96)', borderColor:'#e2e8f0', textStyle:{ color:'#334155' } };
+    var charts = [];
+    var sm = true;
+
+    // 1. Volume & Sentimen per hari (stacked bar + line for unique content)
+    var volumeChart = echarts.init(document.getElementById('volumeChart'));
+    charts.push(volumeChart);
+    volumeChart.setOption({
+      backgroundColor:'transparent',
+      tooltip: Object.assign({ trigger:'axis', axisPointer:{ type:'shadow' } }, tip),
+      legend: { data:['Negatif','Netral','Konten Unik'], textStyle:{ color:'#64748b' }, top:0 },
+      grid: { left:'3%', right:'4%', bottom:'3%', top:40, containLabel:true },
+      xAxis: { type:'category', data:['2 Jun','3 Jun'], axisLine:{ lineStyle:{ color:'#cbd5e1' } }, axisLabel:{ color:'#64748b' } },
+      yAxis: { type:'value', name:'Jumlah', axisLine:{ show:false }, splitLine:{ lineStyle:{ color:'#f1f5f9' } }, axisLabel:{ color:'#64748b' } },
+      series: [
+        { name:'Negatif', type:'bar', stack:'total', data:[6,6], itemStyle:{ color:palette.red } },
+        { name:'Netral', type:'bar', stack:'total', data:[1,0], itemStyle:{ color:palette.slate, borderRadius:[4,4,0,0] },
+          label:{ show:true, position:'top', formatter:function(p){ return p.dataIndex===0 ? '7 total' : '6 total'; }, color:'#334155', fontWeight:600 } },
+        { name:'Konten Unik', type:'line', data:[4,4], smooth:true, lineStyle:{ width:3, color:palette.blue }, symbol:'circle', symbolSize:9, itemStyle:{ color:palette.blue, borderColor:'#fff', borderWidth:2 } }
+      ]
+    });
+
+    // 2. Eskalasi grouped bar (2 Jun vs 3 Jun)
+    var eskalasiChart = echarts.init(document.getElementById('eskalasiChart'));
+    charts.push(eskalasiChart);
+    eskalasiChart.setOption({
+      backgroundColor:'transparent',
+      tooltip: Object.assign({ trigger:'axis', axisPointer:{ type:'shadow' } }, tip),
+      legend: { data:['2 Jun','3 Jun'], textStyle:{ color:'#64748b' }, top:0 },
+      grid: { left:'3%', right:'6%', bottom:'3%', top:40, containLabel:true },
+      xAxis: { type:'category', data:['Elemen\nKoalisi','Tingkat\nTuntutan','Sektor\nMassa'], axisLine:{ lineStyle:{ color:'#cbd5e1' } }, axisLabel:{ color:'#64748b', interval:0 } },
+      yAxis: { type:'value', axisLine:{ show:false }, splitLine:{ lineStyle:{ color:'#f1f5f9' } }, axisLabel:{ color:'#64748b' } },
+      series: [
+        { name:'2 Jun', type:'bar', data:[5,2,2], itemStyle:{ color:palette.blue, borderRadius:[4,4,0,0] }, barGap:'10%', label:{ show:true, position:'top', color:'#64748b', fontWeight:600 } },
+        { name:'3 Jun', type:'bar', data:[9,6,8], itemStyle:{ color:palette.orange, borderRadius:[4,4,0,0] }, label:{ show:true, position:'top', color:'#64748b', fontWeight:600 } }
+      ]
+    });
+
+    // 3. Donut Sentimen
+    var donutChart = echarts.init(document.getElementById('donutChart'));
+    charts.push(donutChart);
+    donutChart.setOption({
+      backgroundColor:'transparent',
+      tooltip: Object.assign({ trigger:'item', formatter:'{b}: {c} artikel ({d}%)' }, tip),
+      legend: sm ? { bottom:0, left:'center', orient:'horizontal', textStyle:{ color:'#64748b', fontSize:11 } } : { orient:'vertical', left:'left', top:'center', textStyle:{ color:'#64748b' } },
+      series: [{
+        type:'pie', radius:['45%','72%'], center: sm ? ['50%','42%'] : ['62%','50%'], avoidLabelOverlap:true,
+        itemStyle:{ borderRadius:8, borderColor:'#fff', borderWidth:3 },
+        label:{ show:true, formatter:'{b}\n{d}%', color:'#334155', fontWeight:600 },
+        emphasis:{ label:{ show:true, fontSize:16, fontWeight:'bold' } },
+        data:[
+          { value:12, name:'Negatif', itemStyle:{ color:palette.red } },
+          { value:1, name:'Netral', itemStyle:{ color:palette.slate } },
+          { value:0, name:'Positif', itemStyle:{ color:palette.green } }
+        ]
+      }]
+    });
+
+    // 4. Narasi horizontal bar
+    var narasiChart = echarts.init(document.getElementById('narasiChart'));
+    charts.push(narasiChart);
+    narasiChart.setOption({
+      backgroundColor:'transparent',
+      tooltip: Object.assign({ trigger:'axis', axisPointer:{ type:'shadow' }, formatter:'{b}: {c} artikel' }, tip),
+      grid: { left:'3%', right: sm ? '14%' : '10%', bottom:'3%', top:10, containLabel:true },
+      xAxis: { type:'value', axisLine:{ show:false }, splitLine:{ lineStyle:{ color:'#f1f5f9' } }, axisLabel:{ color:'#64748b' } },
+      yAxis: { type:'category', data:['Ancaman aksi lanjutan','Pembohongan publik / tolak narasi','Desakan mundur pimpinan','Dugaan korupsi','PLN lamban / pimpinan absen','Aksi ricuh / anarkistis','Tuntutan kompensasi'], axisLine:{ lineStyle:{ color:'#cbd5e1' } }, axisLabel:{ color:'#334155', fontSize: sm ? 9 : 11, width: sm ? 95 : 160, overflow:'break' } },
+      series: [{
+        type:'bar', barWidth:'58%', itemStyle:{ borderRadius:[0,6,6,0] },
+        label:{ show:true, position:'right', formatter:'{c}', color:'#64748b', fontWeight:600 },
+        data:[
+          { value:2, itemStyle:{ color:palette.yellow } },
+          { value:3, itemStyle:{ color:palette.slate } },
+          { value:4, itemStyle:{ color:palette.purple } },
+          { value:5, itemStyle:{ color:palette.red } },
+          { value:8, itemStyle:{ color:palette.orange } },
+          { value:11, itemStyle:{ color:'#dc2626' } },
+          { value:13, itemStyle:{ color:palette.blue } }
+        ]
+      }]
+    });
+
+    // 5. Footprint donut
+    var footprintChart = echarts.init(document.getElementById('footprintChart'));
+    charts.push(footprintChart);
+    footprintChart.setOption({
+      backgroundColor:'transparent',
+      tooltip: Object.assign({ trigger:'item', formatter:'{b}: {c} artikel ({d}%)' }, tip),
+      legend: { bottom:0, textStyle:{ color:'#64748b' } },
+      series: [{
+        type:'pie', radius:['50%','78%'], center:['50%','45%'],
+        itemStyle:{ borderRadius:8, borderColor:'#fff', borderWidth:3 },
+        label:{ show:true, formatter:'{c}', color:'#334155', fontWeight:700, fontSize:14 },
+        data:[
+          { value:8, name:'Konten Orisinal', itemStyle:{ color:palette.blue } },
+          { value:5, name:'Republikasi/Sindikasi', itemStyle:{ color:palette.orange } }
+        ]
+      }]
+    });
+
+    function resizeAll(){ charts.forEach(function(c){ c.resize(); }); }
+    window.addEventListener('resize', resizeAll);
+    window.addEventListener('orientationchange', function(){ setTimeout(resizeAll, 300); });
+    setTimeout(resizeAll, 250);
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initCharts); } else { initCharts(); }
+</script>
+
+</body>
+</html>
