@@ -112,7 +112,7 @@
       <div class="kpi-card bg-white rounded-xl p-3 shadow-sm border border-slate-100 text-center">
         <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Total Artikel</div>
         <div class="text-2xl font-bold text-[#0055A4]">13</div>
-        <div class="text-xs text-slate-400 mt-1">8 konten unik</div>
+        <div class="text-xs text-slate-400 mt-1">8 berita unik</div>
       </div>
       <div class="kpi-card bg-white rounded-xl p-3 shadow-sm border border-slate-100 text-center">
         <div class="text-xs text-slate-500 uppercase tracking-wide mb-1">Sentimen Negatif</div>
@@ -572,7 +572,7 @@
     volumeChart.setOption({
       backgroundColor:'transparent',
       tooltip: Object.assign({ trigger:'axis', axisPointer:{ type:'shadow' } }, tip),
-      legend: { data:['Negatif','Netral','Konten Unik'], textStyle:{ color:'#64748b' }, top:0 },
+      legend: { data:['Negatif','Netral','Berita Unik'], textStyle:{ color:'#64748b' }, top:0 },
       grid: { left:'3%', right:'4%', bottom:'3%', top:40, containLabel:true },
       xAxis: { type:'category', data:['2 Jun','3 Jun'], axisLine:{ lineStyle:{ color:'#cbd5e1' } }, axisLabel:{ color:'#64748b' } },
       yAxis: { type:'value', name:'Jumlah', axisLine:{ show:false }, splitLine:{ lineStyle:{ color:'#f1f5f9' } }, axisLabel:{ color:'#64748b' } },
@@ -580,7 +580,7 @@
         { name:'Negatif', type:'bar', stack:'total', data:[6,6], itemStyle:{ color:palette.red } },
         { name:'Netral', type:'bar', stack:'total', data:[1,0], itemStyle:{ color:palette.slate, borderRadius:[4,4,0,0] },
           label:{ show:true, position:'top', formatter:function(p){ return p.dataIndex===0 ? '7 total' : '6 total'; }, color:'#334155', fontWeight:600 } },
-        { name:'Konten Unik', type:'line', data:[4,4], smooth:true, lineStyle:{ width:3, color:palette.blue }, symbol:'circle', symbolSize:9, itemStyle:{ color:palette.blue, borderColor:'#fff', borderWidth:2 } }
+        { name:'Berita Unik', type:'line', data:[4,4], smooth:true, lineStyle:{ width:3, color:palette.blue }, symbol:'circle', symbolSize:9, itemStyle:{ color:palette.blue, borderColor:'#fff', borderWidth:2 } }
       ]
     });
 
@@ -656,7 +656,7 @@
         itemStyle:{ borderRadius:8, borderColor:'#fff', borderWidth:3 },
         label:{ show:true, formatter:'{c}', color:'#334155', fontWeight:700, fontSize:14 },
         data:[
-          { value:8, name:'Konten Orisinal', itemStyle:{ color:palette.blue } },
+          { value:8, name:'Berita Orisinal', itemStyle:{ color:palette.blue } },
           { value:5, name:'Republikasi/Sindikasi', itemStyle:{ color:palette.orange } }
         ]
       }]
